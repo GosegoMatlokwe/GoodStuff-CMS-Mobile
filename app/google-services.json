@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "918135390608",
+    "project_id": "goodstuff-catering-1e04e",
+    "storage_bucket": "goodstuff-catering-1e04e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:918135390608:android:4f6262da0379b851c53315",
+        "android_client_info": {
+          "package_name": "za.co.goodstuffcatering"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABdWkE_FU9zM2eB7D1fcRXPGHe0F2F9jM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
