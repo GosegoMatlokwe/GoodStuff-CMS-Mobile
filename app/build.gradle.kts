@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
@@ -54,7 +53,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
 
-    // Core Android & Compose (Removed your duplicated core-ktx 1.12.0 line here)
+    // Core Android & Compose
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
     implementation(platform("androidx.compose:compose-bom:2024.02.00"))
