@@ -8,16 +8,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import za.co.goodstuffcatering.data.remote.ApiService
+import za.co.goodstuffcatering.data.repository.AuthRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val apiService: ApiService
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val auth = FirebaseAuth.getInstance()
-
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState
 
@@ -29,13 +28,18 @@ class AuthViewModel @Inject constructor(
                 val authResult = auth.signInWithCredential(credential).await()
                 val user = authResult.user
 
-                // Get Firebase JWT to send to Django
                 val firebaseToken = user?.getIdToken(false)?.await()?.token
+                val email = user?.email ?: ""
+                val name = user?.displayName ?: ""
 
                 if (firebaseToken != null) {
-                    // Send token to Django backend to sync user in PostgreSQL
-                    // apiService.syncUser("Bearer $firebaseToken", AuthRequest(user.email ?: ""))
-                    _authState.value = AuthState.Success
+                    // Sync with Django backend
+                    val result = authRepository.syncUser(firebaseToken, email, name)
+                    if (result.isSuccess) {
+                        _authState.value = AuthState.Success
+                    } else {
+                        _authState.value = AuthState.Error("Backend sync failed")
+                    }
                 } else {
                     _authState.value = AuthState.Error("Failed to get token")
                 }
