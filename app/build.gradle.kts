@@ -1,19 +1,15 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("com.android.application")
+
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
-    id("com.google.gms.google-services") // For Firebase
+    id("com.google.gms.google-services")
     kotlin("kapt")
 }
 
 android {
     namespace = "za.co.goodstuffcatering"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "za.co.goodstuffcatering"
@@ -24,6 +20,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
     buildFeatures {
         compose = true
     }
@@ -37,9 +34,11 @@ android {
             )
         }
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.8"
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -47,6 +46,7 @@ android {
 }
 
 dependencies {
+    // Default Android Studio libraries
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)
@@ -54,8 +54,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
 
-    // Core Android & Compose
-    implementation("androidx.core:core-ktx:1.12.0")
+    // Core Android & Compose (Removed your duplicated core-ktx 1.12.0 line here)
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
     implementation(platform("androidx.compose:compose-bom:2024.02.00"))
