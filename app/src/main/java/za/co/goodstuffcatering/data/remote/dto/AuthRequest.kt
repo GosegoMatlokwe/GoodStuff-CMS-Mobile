@@ -1,4 +1,6 @@
 package za.co.goodstuffcatering.data.remote.dto
 
-class AuthRequest {
-}
+data class AuthRequest(
+    val email: String,
+    val name: String
+)

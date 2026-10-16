@@ -1,4 +1,9 @@
 package za.co.goodstuffcatering.data.remote.dto
 
-class BookingRequest {
-}
+data class BookingRequest(
+    val eventDate: String,
+    val eventType: String,
+    val guestCount: Int,
+    val menuItems: List<String>,
+    val staffNeeded: Int
+)

@@ -1,4 +1,7 @@
 package za.co.goodstuffcatering.data.remote.dto
 
-class MenuItemDto {
-}
+data class MenuItemDto(
+    val id: Int,
+    val itemName: String,
+    val price: Double
+)
