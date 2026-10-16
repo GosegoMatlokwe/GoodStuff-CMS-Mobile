@@ -1,6 +1,7 @@
 package za.co.goodstuffcatering.ui.booking
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -8,14 +9,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.navigation.NavController
 
 @Composable
 fun BookingScreen(
+    navController: NavController,
     viewModel: BookingViewModel = hiltViewModel()
 ) {
     val guestCount by viewModel.guestCount.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val isSubmitting by viewModel.isSubmitting.collectAsState()
+    val submitSuccess by viewModel.submitSuccess.collectAsState()
+
+    var eventType by remember { mutableStateOf("Wedding") }
+    var eventDate by remember { mutableStateOf("2026/06/05") }
+
+    LaunchedEffect(submitSuccess) {
+        if (submitSuccess) {
+            navController.navigate("dashboard") {
+                popUpTo("booking") { inclusive = true }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -24,8 +39,26 @@ fun BookingScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "New Catering Booking", style = MaterialTheme.typography.headlineMedium)
+        Text("New Catering Booking", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(24.dp))
+
+        OutlinedTextField(
+            value = eventType,
+            onValueChange = { eventType = it },
+            label = { Text("Event Type") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = eventDate,
+            onValueChange = { eventDate = it },
+            label = { Text("Event Date") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = guestCount,
@@ -48,11 +81,15 @@ fun BookingScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { /* Submit to Django */ },
-            enabled = errorMessage == null && guestCount.isNotEmpty(),
+            onClick = { viewModel.submitBooking(eventType, eventDate) },
+            enabled = errorMessage == null && guestCount.isNotEmpty() && !isSubmitting,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Submit Booking")
+            if (isSubmitting) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+            } else {
+                Text("Submit Booking")
+            }
         }
     }
 }
