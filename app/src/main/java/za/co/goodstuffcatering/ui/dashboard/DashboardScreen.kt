@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import za.co.goodstuffcatering.ui.common.UiState
 import za.co.goodstuffcatering.ui.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -21,8 +22,7 @@ fun DashboardScreen(
     navController: NavController,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
-    val bookings by viewModel.bookings.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -41,27 +41,44 @@ fun DashboardScreen(
             }
         }
     ) { padding ->
-        if (isLoading) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp)
-            ) {
-                items(bookings) { booking ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
+        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+            when (val state = uiState) {
+                is UiState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+                is UiState.Error -> {
+                    // Production-ready Error State with Retry
+                    Column(
+                        modifier = Modifier.align(Alignment.Center).padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Event: ${booking.eventType}", style = MaterialTheme.typography.titleMedium)
-                            Text("Date: ${booking.eventDate}")
-                            Text("Status: ${booking.status}")
+                        Text(text = state.message, color = MaterialTheme.colorScheme.error)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(onClick = { state.retryAction?.invoke() }) {
+                            Text("Retry")
+                        }
+                    }
+                }
+                is UiState.Success -> {
+                    if (state.data.isEmpty()) {
+                        Text(
+                            text = "No upcoming bookings. Create one!",
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize().padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(state.data) { booking ->
+                                Card(modifier = Modifier.fillMaxWidth()) {
+                                    Column(modifier = Modifier.padding(16.dp)) {
+                                        Text("Event: ${booking.eventType}", style = MaterialTheme.typography.titleMedium)
+                                        Text("Date: ${booking.eventDate}")
+                                        Text("Status: ${booking.status}", color = MaterialTheme.colorScheme.primary)
+                                    }
+                                }
+                            }
                         }
                     }
                 }

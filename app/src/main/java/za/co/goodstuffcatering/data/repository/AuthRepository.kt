@@ -2,6 +2,7 @@ package za.co.goodstuffcatering.data.repository
 
 import za.co.goodstuffcatering.data.remote.ApiService
 import za.co.goodstuffcatering.data.remote.dto.AuthRequest
+import za.co.goodstuffcatering.data.remote.dto.ConsentRequest
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
