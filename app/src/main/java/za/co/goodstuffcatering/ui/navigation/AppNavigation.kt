@@ -7,9 +7,11 @@ import androidx.navigation.compose.composable
 import za.co.goodstuffcatering.ui.auth.LoginScreen
 import za.co.goodstuffcatering.ui.booking.BookingScreen
 import za.co.goodstuffcatering.ui.dashboard.DashboardScreen
+import za.co.goodstuffcatering.ui.landing.LandingScreen // Import Landing
 import za.co.goodstuffcatering.ui.settings.SettingsScreen
 
 sealed class Screen(val route: String) {
+    object Landing : Screen("landing") // Add Landing
     object Login : Screen("login")
     object Dashboard : Screen("dashboard")
     object Booking : Screen("booking")
@@ -18,10 +20,15 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun AppNavigation(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Screen.Login.route) {
+    // Start destination is now Landing
+    NavHost(navController = navController, startDestination = Screen.Landing.route) {
+        composable(Screen.Landing.route) {
+            LandingScreen(navController = navController)
+        }
         composable(Screen.Login.route) {
             LoginScreen(navController = navController)
         }
+        // ... keep the rest exactly the same ...
         composable(Screen.Dashboard.route) {
             DashboardScreen(navController = navController)
         }
