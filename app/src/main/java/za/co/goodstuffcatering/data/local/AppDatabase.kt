@@ -7,3 +7,9 @@ import androidx.room.RoomDatabase
 abstract class AppDatabase : RoomDatabase() {
     abstract fun bookingDao(): BookingDao
 }
+
+@Database(
+    entities = [BookingEntity::class, MenuItemEntity::class, OrderEntity::class],
+    version = 2, // Bump version
+    exportSchema = false
+)

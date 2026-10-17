@@ -16,4 +16,19 @@ interface BookingDao {
 
     @Query("DELETE FROM bookings")
     suspend fun clearBookings()
+
+    // Menu Queries
+    @Query("SELECT * FROM menu_items")
+    fun getMenuItems(): Flow<List<MenuItemEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMenuItems(items: List<MenuItemEntity>)
+
+    // Order Queries
+    @Query("SELECT * FROM orders ORDER BY createdAt DESC")
+    fun getOrders(): Flow<List<OrderEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrder(order: OrderEntity)
+
 }
