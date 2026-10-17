@@ -100,6 +100,7 @@ dependencies {
 
     // Firebase Crashlytics (Production Observability)
     implementation("com.google.firebase:firebase-crashlytics-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
 
     // Room Database (Offline-First Strategy)
     implementation("androidx.room:room-runtime:2.8.5")
