@@ -17,6 +17,21 @@ class AuthRepository @Inject constructor(
         }
     }
 
+    suspend fun recordConsent(token: String, email: String): Result<Unit> {
+        return try {
+            val request = ConsentRequest(
+                email = email,
+                consentGiven = true,
+                timestamp = System.currentTimeMillis()
+            )
+            val response = apiService.recordConsent("Bearer $token", request)
+            if (response.isSuccessful) Result.success(Unit)
+            else Result.failure(Exception("Failed to record consent"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun deleteAccount(token: String): Result<Unit> {
         return try {
             val response = apiService.deleteAccount("Bearer $token")

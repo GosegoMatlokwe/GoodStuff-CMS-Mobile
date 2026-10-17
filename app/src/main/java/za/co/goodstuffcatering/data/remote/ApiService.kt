@@ -32,4 +32,11 @@ interface ApiService {
     suspend fun deleteAccount(
         @Header("Authorization") token: String
     ): Response<Unit>
+
+    @POST("auth/consent/")
+    suspend fun recordConsent(
+        @Header("Authorization") token: String,
+        @Body request: ConsentRequest
+    ): Response<Unit>
+
 }
