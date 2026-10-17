@@ -110,6 +110,9 @@ dependencies {
     // Android Security (EncryptedSharedPreferences)
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
+    //Firebase Cloud Messaging Push Notifications
+    implementation("com.google.firebase:firebase-messaging-ktx")
+
 
 
 }
