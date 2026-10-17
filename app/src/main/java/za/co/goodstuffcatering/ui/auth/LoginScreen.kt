@@ -31,7 +31,7 @@ fun LoginScreen(
     val scope = rememberCoroutineScope()
     val credentialManager = CredentialManager.create(context)
 
-    // TODO: Replace this with your Web Client ID from Firebase Console
+
     val webClientId = "918135390608-5ulabsaqhetsdlbmes1h60i4ua7it630.apps.googleusercontent.com"
 
     LaunchedEffect(authState) {

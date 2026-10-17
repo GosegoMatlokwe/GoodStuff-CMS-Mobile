@@ -5,35 +5,55 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import za.co.goodstuffcatering.ui.auth.LoginScreen
+import za.co.goodstuffcatering.ui.auth.RegistrationScreen
 import za.co.goodstuffcatering.ui.booking.BookingScreen
+import za.co.goodstuffcatering.ui.booking.QuoteCheckoutScreen
 import za.co.goodstuffcatering.ui.dashboard.DashboardScreen
-import za.co.goodstuffcatering.ui.landing.LandingScreen // Import Landing
+import za.co.goodstuffcatering.ui.landing.LandingScreen
+import za.co.goodstuffcatering.ui.menu.MenuDiscoveryScreen
+import za.co.goodstuffcatering.ui.receipt.OrderDetailsScreen
 import za.co.goodstuffcatering.ui.settings.SettingsScreen
 
 sealed class Screen(val route: String) {
-    object Landing : Screen("landing") // Add Landing
+    object Landing : Screen("landing")
     object Login : Screen("login")
+    object Registration : Screen("registration")
     object Dashboard : Screen("dashboard")
-    object Booking : Screen("booking")
+    object Menu : Screen("menu")
+    object BookingForm : Screen("booking_form")
+    object Checkout : Screen("checkout")
+    object OrderDetails : Screen("order_details")
     object Settings : Screen("settings")
 }
 
 @Composable
 fun AppNavigation(navController: NavHostController) {
-    // Start destination is now Landing
     NavHost(navController = navController, startDestination = Screen.Landing.route) {
+
         composable(Screen.Landing.route) {
             LandingScreen(navController = navController)
         }
         composable(Screen.Login.route) {
             LoginScreen(navController = navController)
         }
-        // ... keep the rest exactly the same ...
+        // After SSO Login, route here to capture Phone + POPIA Consent
+        composable(Screen.Registration.route) {
+            RegistrationScreen(navController = navController)
+        }
         composable(Screen.Dashboard.route) {
             DashboardScreen(navController = navController)
         }
-        composable(Screen.Booking.route) {
+        composable(Screen.Menu.route) {
+            MenuDiscoveryScreen(navController = navController)
+        }
+        composable(Screen.BookingForm.route) {
             BookingScreen(navController = navController)
+        }
+        composable(Screen.Checkout.route) {
+            QuoteCheckoutScreen(navController = navController)
+        }
+        composable(Screen.OrderDetails.route) {
+            OrderDetailsScreen(navController = navController)
         }
         composable(Screen.Settings.route) {
             SettingsScreen(navController = navController)
