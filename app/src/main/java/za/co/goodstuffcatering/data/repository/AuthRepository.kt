@@ -33,6 +33,32 @@ class AuthRepository @Inject constructor(
         }
     }
 
+
+    suspend fun registerUser(
+        token: String,
+        email: String,
+        name: String,
+        phone: String,
+        popiaConsent: Boolean
+    ): Result<Unit> {
+        return try {
+            if (!popiaConsent) {
+                return Result.failure(Exception("POPIA consent is required to register."))
+            }
+            val request = RegisterRequest(
+                email = email,
+                name = name,
+                phoneNumber = phone,
+                popiaConsent = popiaConsent
+            )
+            val response = apiService.registerUser("Bearer $token", request)
+            if (response.isSuccessful) Result.success(Unit)
+            else Result.failure(Exception("Registration failed: ${response.code()}"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun deleteAccount(token: String): Result<Unit> {
         return try {
             val response = apiService.deleteAccount("Bearer $token")
