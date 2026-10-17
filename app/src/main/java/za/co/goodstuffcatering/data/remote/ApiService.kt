@@ -12,6 +12,12 @@ interface ApiService {
         @Body request: AuthRequest
     ): Response<Unit>
 
+    @POST("auth/register/")
+    suspend fun registerUser(
+        @Header("Authorization") token: String,
+        @Body request: RegisterRequest
+    ): Response<Unit>
+
     @GET("bookings/")
     suspend fun getBookings(
         @Header("Authorization") token: String
@@ -39,4 +45,18 @@ interface ApiService {
         @Body request: ConsentRequest
     ): Response<Unit>
 
+    // Menu Discovery
+    @GET("menu/categories/")
+    suspend fun getMenuByCategory(@Query("category") category: String): Response<List<MenuItemDto>>
+
+    // Order Management (Detailed)
+    @POST("orders/create/")
+    suspend fun createOrder(@Body request: OrderRequest): Response<OrderResponse>
+
+    @GET("orders/{id}/status/")
+    suspend fun getOrderStatus(@Path("id") orderId: String): Response<OrderStatusResponse>
+
+    // Geolocation - Get Distance from Backend
+    @POST("logistics/distance/")
+    suspend fun calculateDistance(@Body request: DistanceRequest): Response<DistanceResponse>
 }

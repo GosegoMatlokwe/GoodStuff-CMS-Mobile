@@ -3,6 +3,7 @@ package za.co.goodstuffcatering.data.repository
 import za.co.goodstuffcatering.data.remote.ApiService
 import za.co.goodstuffcatering.data.remote.dto.AuthRequest
 import za.co.goodstuffcatering.data.remote.dto.ConsentRequest
+import za.co.goodstuffcatering.data.remote.dto.RegisterRequest
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
@@ -32,7 +33,6 @@ class AuthRepository @Inject constructor(
             Result.failure(e)
         }
     }
-
 
     suspend fun registerUser(
         token: String,

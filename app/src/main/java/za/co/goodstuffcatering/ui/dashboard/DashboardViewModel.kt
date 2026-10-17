@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import za.co.goodstuffcatering.data.local.BookingEntity
 import za.co.goodstuffcatering.data.repository.BookingRepository
 import za.co.goodstuffcatering.ui.common.UiState
