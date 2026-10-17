@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="za.co.goodstuffcatering" />
+                  <option name="mobileSdkAppId" value="1:918135390608:android:4f6262da0379b851c53315" />
+                  <option name="projectId" value="goodstuff-catering-1e04e" />
+                  <option name="projectNumber" value="918135390608" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
