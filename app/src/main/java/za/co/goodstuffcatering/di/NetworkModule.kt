@@ -40,6 +40,22 @@ object NetworkModule {
             .build()
     }
 
+
+    // Add AuthInterceptor to the client builder
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
+        val logging = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+        return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor) // <--- ADD THIS
+            .addInterceptor(logging)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+
     @Provides
     @Singleton
     fun provideApiService(retrofit: Retrofit): ApiService {
