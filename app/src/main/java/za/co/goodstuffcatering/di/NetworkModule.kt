@@ -33,8 +33,8 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            // TODO: Replace with your actual Azure/Django API URL
-            .baseUrl("https://your-django-api.azurewebsites.net/api/")
+
+            .baseUrl("https://gosegomatlokwe.pythonanywhere.com/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
