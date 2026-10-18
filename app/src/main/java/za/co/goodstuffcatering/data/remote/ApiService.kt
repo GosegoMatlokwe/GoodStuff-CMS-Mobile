@@ -31,4 +31,9 @@ interface ApiService {
     // NEW: Endpoint to delete a specific booking
     @DELETE("bookings/{id}/delete/")
     suspend fun deleteBooking(@Path("id") bookingId: Int): Response<Unit>
+
+    // Profile Update
+    @POST("auth/update-profile/")
+    suspend fun updateProfile(@Body request: UpdateProfileRequest): Response<Unit>
+
 }
