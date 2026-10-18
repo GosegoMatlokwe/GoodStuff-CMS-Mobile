@@ -5,7 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
+import androidx.navigation.navArgument // <--- THIS WAS MISSING
 import za.co.goodstuffcatering.ui.auth.LoginScreen
 import za.co.goodstuffcatering.ui.auth.RegistrationScreen
 import za.co.goodstuffcatering.ui.booking.BookingScreen
@@ -22,15 +22,16 @@ sealed class Screen(val route: String) {
     object Registration : Screen("registration")
     object Dashboard : Screen("dashboard")
     object Menu : Screen("menu")
-    object BookingForm : Screen("booking_form")
-    object Checkout : Screen("checkout")
 
-    // FIXED: Added the {bookingId} placeholder to the route
-    object OrderDetails : Screen("order_details/{bookingId}") {
-        // FIXED: Added this helper function to format the route with the real ID
-        fun createRoute(bookingId: Int) = "order_details/$bookingId"
+    // UPDATED: Accepts pricePerHead so we can use the actual menu price
+    object BookingForm : Screen("booking_form?price={price}") {
+        fun createRoute(price: Double) = "booking_form?price=$price"
     }
 
+    object Checkout : Screen("checkout")
+    object OrderDetails : Screen("order_details/{bookingId}") {
+        fun createRoute(bookingId: Int) = "order_details/$bookingId"
+    }
     object Settings : Screen("settings")
 }
 
@@ -38,29 +39,26 @@ sealed class Screen(val route: String) {
 fun AppNavigation(navController: NavHostController) {
     NavHost(navController = navController, startDestination = Screen.Landing.route) {
 
-        composable(Screen.Landing.route) {
-            LandingScreen(navController = navController)
-        }
-        composable(Screen.Login.route) {
-            LoginScreen(navController = navController)
-        }
-        composable(Screen.Registration.route) {
-            RegistrationScreen(navController = navController)
-        }
-        composable(Screen.Dashboard.route) {
-            DashboardScreen(navController = navController)
-        }
-        composable(Screen.Menu.route) {
-            MenuDiscoveryScreen(navController = navController)
-        }
-        composable(Screen.BookingForm.route) {
-            BookingScreen(navController = navController)
-        }
-        composable(Screen.Checkout.route) {
-            QuoteCheckoutScreen(navController = navController)
+        composable(Screen.Landing.route) { LandingScreen(navController) }
+        composable(Screen.Login.route) { LoginScreen(navController) }
+        composable(Screen.Registration.route) { RegistrationScreen(navController) }
+        composable(Screen.Dashboard.route) { DashboardScreen(navController) }
+        composable(Screen.Menu.route) { MenuDiscoveryScreen(navController) }
+
+        // UPDATED: Read the price argument and pass it to BookingScreen
+        composable(
+            route = Screen.BookingForm.route,
+            arguments = listOf(navArgument("price") {
+                type = NavType.StringType
+                defaultValue = "150.0" // Default if no menu was selected
+            })
+        ) { backStackEntry ->
+            val price = backStackEntry.arguments?.getString("price")?.toDoubleOrNull() ?: 150.0
+            BookingScreen(navController = navController, initialPricePerHead = price)
         }
 
-        // FIXED: Updated the composable to accept the argument safely
+        composable(Screen.Checkout.route) { QuoteCheckoutScreen(navController) }
+
         composable(
             route = Screen.OrderDetails.route,
             arguments = listOf(navArgument("bookingId") { type = NavType.IntType })
@@ -69,8 +67,6 @@ fun AppNavigation(navController: NavHostController) {
             OrderDetailsScreen(navController = navController, bookingId = bookingId)
         }
 
-        composable(Screen.Settings.route) {
-            SettingsScreen(navController = navController)
-        }
+        composable(Screen.Settings.route) { SettingsScreen(navController) }
     }
 }

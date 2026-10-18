@@ -34,8 +34,6 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    // Get the current user's first name for the greeting
     val currentUser = FirebaseAuth.getInstance().currentUser
     val firstName = currentUser?.displayName?.split(" ")?.firstOrNull() ?: "there"
 
@@ -46,7 +44,6 @@ fun DashboardScreen(
                 title = { Text("Dashboard", color = ForestGreen, fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = CreamBackground),
                 actions = {
-                    // Settings button
                     IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings", tint = ForestGreen)
                     }
@@ -55,7 +52,8 @@ fun DashboardScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(Screen.BookingForm.route) },
+                // If they click FAB, default price is 150.0
+                onClick = { navController.navigate(Screen.BookingForm.createRoute(150.0)) },
                 containerColor = ForestGreen,
                 shape = RoundedCornerShape(16.dp)
             ) {
@@ -65,14 +63,12 @@ fun DashboardScreen(
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize().padding(horizontal = 16.dp)) {
 
-            // --- PREMIUM HEADER ---
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = "Good morning,", fontSize = 16.sp, color = Color.Gray)
             Text(text = "$firstName.", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = ForestGreen)
-
             Spacer(modifier = Modifier.height(24.dp))
 
-            // --- BROWSE MENU CARD ---
+            // Browse Menu Card
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -97,7 +93,6 @@ fun DashboardScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // --- BOOKINGS LIST HEADER ---
             Text(
                 text = "Upcoming Bookings",
                 fontSize = 20.sp,
@@ -106,42 +101,22 @@ fun DashboardScreen(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            // --- BOOKINGS LIST ---
             Box(modifier = Modifier.fillMaxSize()) {
                 when (val state = uiState) {
-                    is UiState.Loading -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center),
-                            color = ForestGreen
-                        )
-                    }
+                    is UiState.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = ForestGreen)
                     is UiState.Error -> {
-                        Column(
-                            modifier = Modifier.align(Alignment.Center),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
+                        Column(modifier = Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(text = state.message, color = MaterialTheme.colorScheme.error)
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Button(
-                                onClick = { state.retryAction?.invoke() },
-                                colors = ButtonDefaults.buttonColors(containerColor = ForestGreen)
-                            ) {
+                            Button(onClick = { state.retryAction?.invoke() }, colors = ButtonDefaults.buttonColors(containerColor = ForestGreen)) {
                                 Text("Retry")
                             }
                         }
                     }
                     is UiState.Success -> {
                         if (state.data.isEmpty()) {
-                            Text(
-                                text = "No upcoming bookings. Tap + to create one!",
-                                modifier = Modifier.align(Alignment.Center),
-                                color = Color.Gray
-                            )
+                            Text("No upcoming bookings. Tap + to create one!", modifier = Modifier.align(Alignment.Center), color = Color.Gray)
                         } else {
-                            LazyColumn(
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                // YOUR NEW CARD DESIGN SNIPPET
+                            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                 items(state.data) { booking ->
                                     Card(
                                         modifier = Modifier.fillMaxWidth(),
@@ -187,15 +162,14 @@ fun DashboardScreen(
                                             Divider(color = Color.LightGray.copy(alpha = 0.5f))
                                             Spacer(modifier = Modifier.height(8.dp))
 
-                                            // --- RECEIPT PILL BUTTON ---
+                                            // YOUR REQUESTED SNIPPET
                                             Row(
                                                 modifier = Modifier.fillMaxWidth(),
                                                 horizontalArrangement = Arrangement.End
                                             ) {
                                                 OutlinedButton(
-                                                    // FIXED: Now passes the specific booking.id to the route
                                                     onClick = { navController.navigate(Screen.OrderDetails.createRoute(booking.id)) },
-                                                    shape = RoundedCornerShape(50), // Pill shape
+                                                    shape = RoundedCornerShape(50),
                                                     border = BorderStroke(1.dp, ForestGreen),
                                                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
                                                     modifier = Modifier.height(32.dp)

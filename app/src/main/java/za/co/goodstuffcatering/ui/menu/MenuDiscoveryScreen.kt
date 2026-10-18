@@ -66,13 +66,21 @@ fun MenuDiscoveryScreen(
                             Text("${selectedItems.size} items selected", fontWeight = FontWeight.Bold)
                             Text("R ${selectedItems.sumOf { it.price }}", color = ForestGreen, fontWeight = FontWeight.Bold)
                         }
+
                         Button(
-                            onClick = { navController.navigate(Screen.BookingForm.route) },
+                            onClick = {
+                                // Calculate the total price of selected items
+                                val totalPrice = selectedItems.sumOf { it.price }
+                                // Pass it to the Booking screen!
+                                navController.navigate(Screen.BookingForm.createRoute(totalPrice))
+                            },
                             colors = ButtonDefaults.buttonColors(containerColor = ForestGreen),
                             shape = RoundedCornerShape(16.dp)
                         ) {
                             Text("Proceed to Booking")
                         }
+
+
                     }
                 }
             }
