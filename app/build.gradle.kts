@@ -6,6 +6,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+
 }
 
 android {
@@ -113,6 +114,7 @@ dependencies {
     //Firebase Cloud Messaging Push Notifications
     implementation("com.google.firebase:firebase-messaging-ktx")
 
-
+    //Extended Material Icons
+    implementation("androidx.compose.material:material-icons-extended")
 
 }

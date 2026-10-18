@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import za.co.goodstuffcatering.data.local.MenuItemEntity
+import za.co.goodstuffcatering.ui.navigation.Screen
 import za.co.goodstuffcatering.ui.theme.CreamBackground
 import za.co.goodstuffcatering.ui.theme.ForestGreen
 import za.co.goodstuffcatering.ui.theme.GoldAccent
@@ -30,6 +32,7 @@ fun MenuDiscoveryScreen(
     viewModel: MenuViewModel = hiltViewModel()
 ) {
     val menuItems by viewModel.menuItems.collectAsState()
+    val selectedItems by viewModel.selectedItems.collectAsState()
     var selectedCategory by remember { mutableStateOf("All") }
 
     Scaffold(
@@ -42,7 +45,6 @@ fun MenuDiscoveryScreen(
                         Text("Our Menu.", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = ForestGreen)
                     }
                 },
-                // FIXED: Added a back button so the user isn't trapped here
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = ForestGreen)
@@ -50,10 +52,35 @@ fun MenuDiscoveryScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = CreamBackground)
             )
+        },
+        bottomBar = {
+            // Show a checkout bar if items are selected
+            if (selectedItems.isNotEmpty()) {
+                Surface(color = Color.White, shadowElevation = 8.dp) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text("${selectedItems.size} items selected", fontWeight = FontWeight.Bold)
+                            Text("R ${selectedItems.sumOf { it.price }}", color = ForestGreen, fontWeight = FontWeight.Bold)
+                        }
+                        Button(
+                            onClick = { navController.navigate(Screen.BookingForm.route) },
+                            colors = ButtonDefaults.buttonColors(containerColor = ForestGreen),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text("Proceed to Booking")
+                        }
+                    }
+                }
+            }
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-            // Category Filter Chips
+
+            // Categories Row
             LazyRow(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -79,7 +106,7 @@ fun MenuDiscoveryScreen(
                 modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Filter items based on the selected category
+                // FIXED: Filtering now works because ViewModel assigns categories
                 val filteredItems = if (selectedCategory == "All") {
                     menuItems
                 } else {
@@ -87,7 +114,12 @@ fun MenuDiscoveryScreen(
                 }
 
                 items(filteredItems) { item ->
-                    MenuItemCard(item = item)
+                    val isSelected = selectedItems.contains(item)
+                    MenuItemCard(
+                        item = item,
+                        isSelected = isSelected,
+                        onAddClick = { viewModel.toggleSelection(item) }
+                    )
                 }
             }
         }
@@ -95,7 +127,11 @@ fun MenuDiscoveryScreen(
 }
 
 @Composable
-fun MenuItemCard(item: MenuItemEntity) {
+fun MenuItemCard(
+    item: MenuItemEntity,
+    isSelected: Boolean,
+    onAddClick: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -106,11 +142,8 @@ fun MenuItemCard(item: MenuItemEntity) {
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Image Placeholder (Using emoji)
             Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .background(CreamBackground, RoundedCornerShape(12.dp)),
+                modifier = Modifier.size(80.dp).background(CreamBackground, RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text("🍽️", fontSize = 32.sp)
@@ -118,19 +151,25 @@ fun MenuItemCard(item: MenuItemEntity) {
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Item Details
             Column(modifier = Modifier.weight(1f)) {
                 Text(item.itemName, fontWeight = FontWeight.Bold, color = ForestGreen, fontSize = 18.sp)
                 Text("R ${item.price} / head", color = GoldAccent, fontWeight = FontWeight.Medium)
             }
 
-            // Add Button
+            // FIXED: Button now toggles selection
             Button(
-                onClick = { /* TODO: Add to booking selection logic */ },
+                onClick = onAddClick,
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = ForestGreen)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isSelected) ForestGreen else Color.LightGray.copy(alpha = 0.3f),
+                    contentColor = if (isSelected) Color.White else ForestGreen
+                )
             ) {
-                Text("+ Add", color = Color.White)
+                if (isSelected) {
+                    Icon(Icons.Default.Check, contentDescription = "Added")
+                } else {
+                    Text("+ Add")
+                }
             }
         }
     }

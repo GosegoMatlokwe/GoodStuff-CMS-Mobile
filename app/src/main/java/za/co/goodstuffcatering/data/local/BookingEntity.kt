@@ -19,6 +19,8 @@ data class BookingEntity(
     // Column for the status (e.g., "Pending", "Confirmed")
     val status: String,
     // Column for tracking when this record was last updated locally.
+    val guestCount: Int = 0,     // NEW
+    val totalCost: Double = 0.0, // NEW
     // System.currentTimeMillis() defaults to the current time when the object is created.
     val lastUpdated: Long = System.currentTimeMillis()
 )

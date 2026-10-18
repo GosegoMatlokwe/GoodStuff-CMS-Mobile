@@ -26,7 +26,9 @@ sealed class Screen(val route: String) {
     object Menu : Screen("menu")
     object BookingForm : Screen("booking_form")
     object Checkout : Screen("checkout")
-    object OrderDetails : Screen("order_details")
+    object OrderDetails : Screen("order_details/{bookingId}") {
+        fun createRoute(bookingId: Int) = "order_details/$bookingId"
+    }
     object Settings : Screen("settings")
 }
 
@@ -72,8 +74,13 @@ fun AppNavigation(navController: NavHostController) {
         }
 
         // 8. Order Details & Receipt
-        composable(Screen.OrderDetails.route) {
-            OrderDetailsScreen(navController = navController)
+        // Change the composable to accept the argument
+        composable(
+            route = Screen.OrderDetails.route,
+            arguments = listOf(navArgument("bookingId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val bookingId = backStackEntry.arguments?.getInt("bookingId") ?: 0
+            OrderDetailsScreen(navController = navController, bookingId = bookingId)
         }
 
         // 9. Settings (POPIA Delete Account)

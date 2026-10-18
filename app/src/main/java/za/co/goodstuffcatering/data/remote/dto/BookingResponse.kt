@@ -12,5 +12,8 @@ data class BookingResponse(
     // The type of event
     val eventType: String,
     // The current status (e.g., "Pending", "Confirmed")
-    val status: String
+    val status: String,
+    val guestCount: Int,     // NEW
+    val totalCost: Double    // NEW
+
 )

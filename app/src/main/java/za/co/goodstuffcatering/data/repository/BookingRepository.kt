@@ -26,7 +26,9 @@ class BookingRepository @Inject constructor(
                         id = it.id,
                         eventDate = it.eventDate,
                         eventType = it.eventType,
-                        status = it.status
+                        status = it.status,
+                        guestCount = it.guestCount, // NEW
+                        totalCost = it.totalCost    // NEW
                     )
                 }
                 bookingDao.insertBookings(entities)

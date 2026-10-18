@@ -58,4 +58,8 @@ interface BookingDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrder(order: OrderEntity)
 
+    // Fetch a specific booking by its ID
+    @Query("SELECT * FROM bookings WHERE id = :id")
+    suspend fun getBookingById(id: Int): BookingEntity?
+
 }
