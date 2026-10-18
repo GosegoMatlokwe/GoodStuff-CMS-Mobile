@@ -13,6 +13,7 @@ import za.co.goodstuffcatering.ui.navigation.Screen
 
 @Composable
 fun LandingScreen(navController: NavController) {
+    // A Column that fills the screen and centers its children vertically and horizontally
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -20,13 +21,15 @@ fun LandingScreen(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Placeholder for Logo
+        // Placeholder for Logo (Using an emoji for now)
         Text(
             text = "🍽️",
             style = MaterialTheme.typography.displayLarge
         )
+
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Main Title
         Text(
             text = "Good Stuff Catering",
             style = MaterialTheme.typography.headlineLarge,
@@ -35,6 +38,7 @@ fun LandingScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Subtitle / Tagline
         Text(
             text = "Premium Catering at Your Fingertips",
             style = MaterialTheme.typography.bodyLarge,
@@ -44,7 +48,9 @@ fun LandingScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(64.dp))
 
+        // Call to Action Button
         Button(
+            // Navigates to the Login screen using the route defined in AppNavigation
             onClick = { navController.navigate(Screen.Login.route) },
             modifier = Modifier
                 .fillMaxWidth()

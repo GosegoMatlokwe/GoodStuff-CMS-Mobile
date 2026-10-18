@@ -14,6 +14,10 @@ import za.co.goodstuffcatering.ui.menu.MenuDiscoveryScreen
 import za.co.goodstuffcatering.ui.receipt.OrderDetailsScreen
 import za.co.goodstuffcatering.ui.settings.SettingsScreen
 
+/**
+ * A sealed class defining all the routes (screens) in the app.
+ * It acts as a central dictionary so we don't make typos in our navigation strings.
+ */
 sealed class Screen(val route: String) {
     object Landing : Screen("landing")
     object Login : Screen("login")
@@ -28,33 +32,51 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun AppNavigation(navController: NavHostController) {
+    // NavHost acts as the container for the navigation graph.
+    // startDestination defines the very first screen shown when the app opens.
     NavHost(navController = navController, startDestination = Screen.Landing.route) {
 
+        // 1. Landing Screen
         composable(Screen.Landing.route) {
             LandingScreen(navController = navController)
         }
+
+        // 2. Login Screen
         composable(Screen.Login.route) {
             LoginScreen(navController = navController)
         }
-        // After SSO Login, route here to capture Phone + POPIA Consent
+
+        // 3. Registration Screen (POPIA & Phone Capture)
         composable(Screen.Registration.route) {
             RegistrationScreen(navController = navController)
         }
+
+        // 4. Dashboard (Main Hub)
         composable(Screen.Dashboard.route) {
             DashboardScreen(navController = navController)
         }
+
+        // 5. Menu Discovery
         composable(Screen.Menu.route) {
             MenuDiscoveryScreen(navController = navController)
         }
+
+        // 6. Booking Form
         composable(Screen.BookingForm.route) {
             BookingScreen(navController = navController)
         }
+
+        // 7. Checkout (Quote Breakdown)
         composable(Screen.Checkout.route) {
             QuoteCheckoutScreen(navController = navController)
         }
+
+        // 8. Order Details & Receipt
         composable(Screen.OrderDetails.route) {
             OrderDetailsScreen(navController = navController)
         }
+
+        // 9. Settings (POPIA Delete Account)
         composable(Screen.Settings.route) {
             SettingsScreen(navController = navController)
         }

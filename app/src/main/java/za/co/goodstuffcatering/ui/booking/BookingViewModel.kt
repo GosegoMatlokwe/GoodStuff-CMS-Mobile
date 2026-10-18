@@ -2,12 +2,10 @@ package za.co.goodstuffcatering.ui.booking
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import za.co.goodstuffcatering.data.remote.dto.BookingRequest
 import za.co.goodstuffcatering.data.repository.BookingRepository
 import javax.inject.Inject
@@ -54,8 +52,8 @@ class BookingViewModel @Inject constructor(
     fun submitBooking(eventType: String, eventDate: String) {
         viewModelScope.launch {
             _isSubmitting.value = true
-            val token = FirebaseAuth.getInstance().currentUser?.getIdToken(false)?.await()?.token
-            if (token != null && _errorMessage.value == null && _guestCount.value.isNotEmpty()) {
+
+            if (_errorMessage.value == null && _guestCount.value.isNotEmpty()) {
                 val request = BookingRequest(
                     eventDate = eventDate,
                     eventType = eventType,
@@ -63,7 +61,10 @@ class BookingViewModel @Inject constructor(
                     menuItems = emptyList(),
                     staffNeeded = 5
                 )
-                val result = bookingRepository.createBooking(token, request)
+
+                // FIXED: Removed the token parameter here!
+                val result = bookingRepository.createBooking(request)
+
                 if (result.isSuccess) {
                     _submitSuccess.value = true
                 } else {

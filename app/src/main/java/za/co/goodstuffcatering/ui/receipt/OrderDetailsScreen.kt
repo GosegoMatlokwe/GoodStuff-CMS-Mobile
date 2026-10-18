@@ -16,10 +16,11 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import za.co.goodstuffcatering.data.local.OrderEntity
 import za.co.goodstuffcatering.ui.theme.CreamBackground
 import za.co.goodstuffcatering.ui.theme.ForestGreen
-import za.co.goodstuffcatering.ui.theme.GoldAccent
 import za.co.goodstuffcatering.utils.WhatsAppHelper
+import androidx.compose.foundation.BorderStroke
 
 @Composable
 fun OrderDetailsScreen(
@@ -29,15 +30,32 @@ fun OrderDetailsScreen(
     val context = LocalContext.current
     val receiptFile by viewModel.generatedReceipt.collectAsState()
 
+    // Creating a mock order for testing purposes
+    val mockOrder = OrderEntity(
+        orderId = 1,
+        serverId = "INV-12345",
+        eventDate = "2026/06/05",
+        eventType = "Wedding",
+        guestCount = 150,
+        venueAddress = "Fourways, JHB",
+        deliveryFee = 25.0,
+        totalCost = 29353.75,
+        status = "OUT FOR DELIVERY"
+    )
+
     // Handle opening the PDF when generated
     LaunchedEffect(receiptFile) {
         receiptFile?.let { file ->
-            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uri, "application/pdf")
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            try {
+                val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, "application/pdf")
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                context.startActivity(intent)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-            context.startActivity(intent)
         }
     }
 
@@ -74,8 +92,8 @@ fun OrderDetailsScreen(
         // View PDF Button
         Button(
             onClick = {
-                // Mock order passed to viewmodel to generate PDF
-                // viewModel.generateReceiptForOrder(context, mockOrder)
+                // FIXED: Correctly passing the mock order to the ViewModel
+                viewModel.generateReceiptForOrder(context, mockOrder)
             },
             modifier = Modifier.fillMaxWidth().height(56.dp),
             shape = RoundedCornerShape(28.dp),
@@ -91,7 +109,7 @@ fun OrderDetailsScreen(
             onClick = {
                 WhatsAppHelper.openWhatsApp(
                     context = context,
-                    phoneNumber = "27686316259", // Your business number
+                    phoneNumber = "27686316259",
                     message = "Hi Good Stuff Catering, I'd like to confirm details for Order #12345."
                 )
             },

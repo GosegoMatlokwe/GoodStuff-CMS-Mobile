@@ -1,6 +1,5 @@
 package za.co.goodstuffcatering.ui.auth
 
-import android.content.Context
 import androidx.credentials.CredentialManager
 import android.util.Log
 import androidx.compose.foundation.layout.*
@@ -24,35 +23,36 @@ import za.co.goodstuffcatering.ui.navigation.Screen
 @Composable
 fun LoginScreen(
     navController: NavController,
-    viewModel: AuthViewModel = hiltViewModel()
+    viewModel: AuthViewModel = hiltViewModel() // Injects the ViewModel
 ) {
+    // Observe the auth state from the ViewModel
     val authState by viewModel.authState.collectAsState()
+
+    // Context and Coroutine scope needed for the Google Credential Manager
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val credentialManager = CredentialManager.create(context)
 
-
+    // Your Web Client ID from Firebase (Used to identify your app to Google)
     val webClientId = "918135390608-5ulabsaqhetsdlbmes1h60i4ua7it630.apps.googleusercontent.com"
 
+    // LaunchedEffect listens for changes in 'authState'.
+    // If login succeeds, it navigates to the Registration screen.
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
             navController.navigate(Screen.Registration.route) {
+                // Remove Login from the backstack so the user can't press 'Back' to return here
                 popUpTo(Screen.Login.route) { inclusive = true }
             }
         }
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
+        modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "Good Stuff Catering",
-            style = MaterialTheme.typography.headlineLarge
-        )
+        Text(text = "Good Stuff Catering", style = MaterialTheme.typography.headlineLarge)
         Spacer(modifier = Modifier.height(48.dp))
 
         Button(
@@ -70,19 +70,19 @@ fun LoginScreen(
                             .addCredentialOption(googleIdOption)
                             .build()
 
-                        // 2. Launch the Google account picker
+                        // 2. Launch the Google account picker popup
                         val result: GetCredentialResponse = credentialManager.getCredential(
                             context = context,
                             request = request,
                         )
 
-                        // 3. Extract the ID Token
+                        // 3. Extract the ID Token from the result
                         val credential = result.credential
                         if (credential is CustomCredential &&
                             credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
                         ) {
                             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                            // 4. Send the ID Token to your ViewModel for Firebase Auth
+                            // 4. Send the ID Token to your ViewModel to handle Firebase Auth
                             viewModel.signInWithGoogle(googleIdTokenCredential.idToken)
                         } else {
                             Log.e("LoginScreen", "Unexpected credential type")
@@ -96,6 +96,7 @@ fun LoginScreen(
                 }
             },
             modifier = Modifier.fillMaxWidth(),
+            // Disable the button while loading to prevent double-clicks
             enabled = authState !is AuthState.Loading
         ) {
             if (authState is AuthState.Loading) {
@@ -105,6 +106,7 @@ fun LoginScreen(
             }
         }
 
+        // Display error message if login fails
         if (authState is AuthState.Error) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(

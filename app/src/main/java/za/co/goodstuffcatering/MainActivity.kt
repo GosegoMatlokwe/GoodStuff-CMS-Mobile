@@ -3,8 +3,10 @@ package za.co.goodstuffcatering
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import za.co.goodstuffcatering.ui.navigation.AppNavigation
@@ -16,31 +18,27 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // --- FIREBASE ANALYTICS (Moved here so it only runs ONCE when app opens) ---
+        val analytics = FirebaseAnalytics.getInstance(this)
+        val bundle = Bundle().apply {
+            putString("app_open", "App launched successfully")
+        }
+        analytics.logEvent("app_lifecycle", bundle)
+
+        // Initialize Crashlytics
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
+
         setContent {
             GoodStuffCateringTheme {
-                Surface(color = MaterialTheme.colorScheme.background) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
                     val navController = rememberNavController()
                     AppNavigation(navController = navController)
-
-                    val analytics = FirebaseAnalytics.getInstance(this)
-                    val crashlytics = FirebaseCrashlytics.getInstance()
-
-                    // Track a custom event (for drop-off analysis)
-                    val bundle = Bundle().apply {
-                        putString("booking_stage", "guest_count_entered")
-                    }
-                    analytics.logEvent("booking_funnel", bundle)
-                    try {
-                        // API call
-                    } catch (e: Exception) {
-                        crashlytics.recordException(e)
-                    }
-
-
                 }
-
-                }
-
+            }
         }
     }
 }

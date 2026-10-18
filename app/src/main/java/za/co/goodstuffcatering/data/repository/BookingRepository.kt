@@ -1,7 +1,6 @@
 package za.co.goodstuffcatering.data.repository
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import za.co.goodstuffcatering.data.local.BookingDao
 import za.co.goodstuffcatering.data.local.BookingEntity
 import za.co.goodstuffcatering.data.remote.ApiService
@@ -13,14 +12,15 @@ class BookingRepository @Inject constructor(
     private val apiService: ApiService,
     private val bookingDao: BookingDao
 ) {
-    // Expose local DB data as a Flow
     val cachedBookings: Flow<List<BookingEntity>> = bookingDao.getBookings()
 
-    suspend fun syncBookingsFromNetwork(token: String): Result<Unit> {
+    // FIXED: Removed 'token: String' from the parameters
+    suspend fun syncBookingsFromNetwork(): Result<Unit> {
         return try {
-            val response = apiService.getBookings("Bearer $token")
+            // FIXED: Removed "Bearer $token" from the API call
+            val response = apiService.getBookings()
+
             if (response.isSuccessful && response.body() != null) {
-                // Convert DTO to Entity and save to Room
                 val entities = response.body()!!.map {
                     BookingEntity(
                         id = it.id,
@@ -35,17 +35,19 @@ class BookingRepository @Inject constructor(
                 Result.failure(Exception("Failed to load bookings from server"))
             }
         } catch (e: Exception) {
-            // If network fails, we return failure, but the UI still reads from Room!
             Result.failure(e)
         }
     }
 
-    suspend fun createBooking(token: String, request: BookingRequest): Result<BookingResponse> {
+    // FIXED: Removed 'token: String' from the parameters
+    suspend fun createBooking(request: BookingRequest): Result<BookingResponse> {
         return try {
-            val response = apiService.createBooking("Bearer $token", request)
+            // FIXED: Removed "Bearer $token" from the API call
+            val response = apiService.createBooking(request)
+
             if (response.isSuccessful) {
-                // Optionally trigger a sync here to update Room
-                syncBookingsFromNetwork(token)
+                // Sync to update the local Room database
+                syncBookingsFromNetwork()
                 Result.success(response.body()!!)
             } else {
                 Result.failure(Exception("Booking failed: ${response.code()}"))

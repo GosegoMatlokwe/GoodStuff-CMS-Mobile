@@ -22,13 +22,16 @@ fun DashboardScreen(
     navController: NavController,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
+    // Collect the UI state from the ViewModel
     val uiState by viewModel.uiState.collectAsState()
 
+    // Scaffold provides the basic layout structure (TopBar, BottomBar, FAB, Content area)
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Dashboard") },
                 actions = {
+                    // Settings Icon button in the top right corner
                     IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }
@@ -36,18 +39,27 @@ fun DashboardScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate(Screen.Booking.route) }) {
+            // FAB for creating a new booking
+            FloatingActionButton(onClick = {
+                // FIXED: Changed Screen.Booking to Screen.BookingForm to match AppNavigation
+                navController.navigate(Screen.BookingForm.route)
+            }) {
                 Icon(Icons.Default.Add, contentDescription = "New Booking")
             }
         }
     ) { padding ->
+        // Box fills the screen below the TopBar and pads accordingly
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+
+            // The 'when' statement forces us to handle every possible UI state safely
             when (val state = uiState) {
                 is UiState.Loading -> {
+                    // Show a spinner in the center of the screen
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
+
                 is UiState.Error -> {
-                    // Production-ready Error State with Retry
+                    // Show the error message and a Retry button
                     Column(
                         modifier = Modifier.align(Alignment.Center).padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -59,17 +71,21 @@ fun DashboardScreen(
                         }
                     }
                 }
+
                 is UiState.Success -> {
+                    // If the list is empty, show a friendly message
                     if (state.data.isEmpty()) {
                         Text(
                             text = "No upcoming bookings. Create one!",
                             modifier = Modifier.align(Alignment.Center)
                         )
                     } else {
+                        // If we have data, show it in a scrolling list (LazyColumn)
                         LazyColumn(
                             modifier = Modifier.fillMaxSize().padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
+                            // Loop through the list of bookings and create a Card for each
                             items(state.data) { booking ->
                                 Card(modifier = Modifier.fillMaxWidth()) {
                                     Column(modifier = Modifier.padding(16.dp)) {

@@ -7,7 +7,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import za.co.goodstuffcatering.data.repository.AuthRepository
 import javax.inject.Inject
 
@@ -22,17 +21,16 @@ class SettingsViewModel @Inject constructor(
     fun deleteAccount() {
         viewModelScope.launch {
             _deleteState.value = DeleteState.Loading
-            val token = FirebaseAuth.getInstance().currentUser?.getIdToken(false)?.await()?.token
-            if (token != null) {
-                val result = authRepository.deleteAccount(token)
-                if (result.isSuccess) {
-                    FirebaseAuth.getInstance().signOut()
-                    _deleteState.value = DeleteState.Success
-                } else {
-                    _deleteState.value = DeleteState.Error("Failed to delete account")
-                }
+
+            // Call repository (AuthInterceptor automatically adds the token!)
+            val result = authRepository.deleteAccount()
+
+            if (result.isSuccess) {
+                // If Django deleted the user, sign out of Firebase too
+                FirebaseAuth.getInstance().signOut()
+                _deleteState.value = DeleteState.Success
             } else {
-                _deleteState.value = DeleteState.Error("Not logged in")
+                _deleteState.value = DeleteState.Error("Failed to delete account")
             }
         }
     }

@@ -25,13 +25,16 @@ fun RegistrationScreen(
     navController: NavController,
     viewModel: RegistrationViewModel = hiltViewModel()
 ) {
+    // Collect states from the ViewModel
     val phone by viewModel.phoneNumber.collectAsState()
     val consent by viewModel.popiaConsent.collectAsState()
     val state by viewModel.registerState.collectAsState()
 
+    // If registration is successful, navigate to the Dashboard
     LaunchedEffect(state) {
         if (state is RegisterState.Success) {
             navController.navigate(Screen.Dashboard.route) {
+                // Clear the backstack so they can't go back to registration
                 popUpTo(Screen.Login.route) { inclusive = true }
             }
         }
@@ -60,6 +63,7 @@ fun RegistrationScreen(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Header Text
             Text(
                 text = "WELCOME TO",
                 color = GoldAccent,
@@ -80,6 +84,7 @@ fun RegistrationScreen(
                 modifier = Modifier.padding(bottom = 32.dp)
             )
 
+            // Phone Number Input
             OutlinedTextField(
                 value = phone,
                 onValueChange = viewModel::onPhoneChanged,
@@ -100,6 +105,7 @@ fun RegistrationScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    // Makes the entire row clickable, not just the tiny checkbox
                     .clickable { viewModel.onConsentChanged(!consent) }
                     .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.Top
@@ -111,12 +117,12 @@ fun RegistrationScreen(
                 )
                 Text(
                     text = "I consent to the processing of my personal data in accordance with POPIA.",
-                    //color = DarkText,
                     fontSize = 14.sp,
                     modifier = Modifier.padding(top = 12.dp, start = 8.dp)
                 )
             }
 
+            // Display error message if validation fails
             if (state is RegisterState.Error) {
                 Text(
                     text = (state as RegisterState.Error).message,
@@ -125,8 +131,10 @@ fun RegistrationScreen(
                 )
             }
 
+            // Pushes the button to the bottom of the screen
             Spacer(modifier = Modifier.weight(1f))
 
+            // Submit Button
             Button(
                 onClick = { viewModel.submitRegistration() },
                 modifier = Modifier
@@ -135,6 +143,7 @@ fun RegistrationScreen(
                     .padding(bottom = 16.dp),
                 shape = RoundedCornerShape(28.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = ForestGreen),
+                // Disable the button if loading OR if they haven't ticked the POPIA box
                 enabled = state !is RegisterState.Loading && consent
             ) {
                 if (state is RegisterState.Loading) {

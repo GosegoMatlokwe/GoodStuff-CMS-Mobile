@@ -23,15 +23,15 @@ fun QuoteCheckoutScreen(
     navController: NavController,
     viewModel: BookingEngineViewModel = hiltViewModel()
 ) {
+    // Get the calculated quote and guest count from the ViewModel
     val quote by viewModel.currentQuote.collectAsState()
     val guests by viewModel.guestCount.collectAsState()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
+        modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // --- HEADER ---
         Text(
             text = "REVIEW YOUR",
             color = GoldAccent,
@@ -49,6 +49,7 @@ fun QuoteCheckoutScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // --- BOOKING SUMMARY CARD ---
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
@@ -62,20 +63,26 @@ fun QuoteCheckoutScreen(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        // --- MENU BREAKDOWN ---
         Text("MENU SELECTED", fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Start))
 
-        // We mock the breakdown here for the UI
+        // Mocked menu items to show the UI working.
+        // In production, you would loop through the selected menu items from the state.
         PriceRow(label = "Beef Stew ($guests)", price = "R ${(150 * guests)}.00")
         PriceRow(label = "Garden Salad ($guests)", price = "R ${(20 * guests)}.00")
 
         Divider(modifier = Modifier.padding(vertical = 16.dp))
 
+        // --- DYNAMIC QUOTE BREAKDOWN ---
+        // The '?: 0.0' is the Elvis operator. It safely defaults to 0.0 if the quote is still null.
         PriceRow(label = "Subtotal", price = "R ${quote?.foodTotal ?: 0.0}")
         PriceRow(label = "Delivery Fee", price = "R ${quote?.deliveryFee ?: 0.0}")
         PriceRow(label = "VAT (15%)", price = "R ${quote?.vatAmount ?: 0.0}")
 
         Divider(modifier = Modifier.padding(vertical = 16.dp))
 
+        // --- TOTAL ROW ---
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -84,10 +91,12 @@ fun QuoteCheckoutScreen(
             Text("R ${quote?.totalCost ?: 0.0}", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = ForestGreen)
         }
 
+        // Pushes the button to the bottom
         Spacer(modifier = Modifier.weight(1f))
 
+        // --- PAYMENT BUTTON ---
         Button(
-            onClick = { /* Proceed to Peach Payments */ },
+            onClick = { /* Proceed to Peach Payments integration */ },
             modifier = Modifier.fillMaxWidth().height(56.dp),
             shape = RoundedCornerShape(28.dp),
             colors = ButtonDefaults.buttonColors(containerColor = ForestGreen)
@@ -97,6 +106,9 @@ fun QuoteCheckoutScreen(
     }
 }
 
+/**
+ * Reusable UI Component for displaying a label and price on opposite ends of a row.
+ */
 @Composable
 fun PriceRow(label: String, price: String) {
     Row(

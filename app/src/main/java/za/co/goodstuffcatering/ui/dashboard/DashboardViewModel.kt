@@ -2,11 +2,12 @@ package za.co.goodstuffcatering.ui.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import za.co.goodstuffcatering.data.local.BookingEntity
 import za.co.goodstuffcatering.data.repository.BookingRepository
 import za.co.goodstuffcatering.ui.common.UiState
@@ -17,20 +18,17 @@ class DashboardViewModel @Inject constructor(
     private val bookingRepository: BookingRepository
 ) : ViewModel() {
 
-    // UI state for the screen
     private val _uiState = MutableStateFlow<UiState<List<BookingEntity>>>(UiState.Loading)
     val uiState: StateFlow<UiState<List<BookingEntity>>> = _uiState.asStateFlow()
 
     init {
-        // Collect from Room DB (Offline-First)
         viewModelScope.launch {
-            bookingRepository.cachedBookings.collect { localBookings ->
+            bookingRepository.cachedBookings.collectLatest { localBookings ->
                 if (localBookings.isNotEmpty()) {
                     _uiState.value = UiState.Success(localBookings)
                 }
             }
         }
-        // Trigger network sync
         syncData()
     }
 
@@ -40,18 +38,16 @@ class DashboardViewModel @Inject constructor(
                 _uiState.value = UiState.Loading
             }
 
-            val token = FirebaseAuth.getInstance().currentUser?.getIdToken(false)?.await()?.token
-            if (token != null) {
-                val result = bookingRepository.syncBookingsFromNetwork(token)
-                if (result.isFailure && _uiState.value !is UiState.Success) {
-                    // If network fails AND we have no cache, show Error with Retry
+            // FIXED: Removed the token parameter here!
+            val result = bookingRepository.syncBookingsFromNetwork()
+
+            if (result.isFailure) {
+                if (_uiState.value !is UiState.Success) {
                     _uiState.value = UiState.Error(
-                        message = "Could not load bookings. Check your internet.",
+                        message = "Could not load bookings. Check your connection.",
                         retryAction = { syncData() }
                     )
                 }
-            } else {
-                _uiState.value = UiState.Error("User not authenticated")
             }
         }
     }

@@ -2,40 +2,24 @@ package za.co.goodstuffcatering.data.repository
 
 import za.co.goodstuffcatering.data.remote.ApiService
 import za.co.goodstuffcatering.data.remote.dto.AuthRequest
-import za.co.goodstuffcatering.data.remote.dto.ConsentRequest
 import za.co.goodstuffcatering.data.remote.dto.RegisterRequest
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
     private val apiService: ApiService
 ) {
-    suspend fun syncUser(token: String, email: String, name: String): Result<Unit> {
+    // Notice: No 'token' parameter! The interceptor adds it.
+    suspend fun syncUser(email: String, name: String): Result<Unit> {
         return try {
-            val response = apiService.syncUser("Bearer $token", AuthRequest(email, name))
+            val response = apiService.syncUser(AuthRequest(email, name))
             if (response.isSuccessful) Result.success(Unit)
             else Result.failure(Exception("Sync failed: ${response.code()}"))
         } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun recordConsent(token: String, email: String): Result<Unit> {
-        return try {
-            val request = ConsentRequest(
-                email = email,
-                consentGiven = true,
-                timestamp = System.currentTimeMillis()
-            )
-            val response = apiService.recordConsent("Bearer $token", request)
-            if (response.isSuccessful) Result.success(Unit)
-            else Result.failure(Exception("Failed to record consent"))
-        } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(e) // Catch network crashes (e.g., if Wi-Fi is off)
         }
     }
 
     suspend fun registerUser(
-        token: String,
         email: String,
         name: String,
         phone: String,
@@ -43,7 +27,7 @@ class AuthRepository @Inject constructor(
     ): Result<Unit> {
         return try {
             if (!popiaConsent) {
-                return Result.failure(Exception("POPIA consent is required to register."))
+                return Result.failure(Exception("POPIA consent is required."))
             }
             val request = RegisterRequest(
                 email = email,
@@ -51,7 +35,7 @@ class AuthRepository @Inject constructor(
                 phoneNumber = phone,
                 popiaConsent = popiaConsent
             )
-            val response = apiService.registerUser("Bearer $token", request)
+            val response = apiService.registerUser(request)
             if (response.isSuccessful) Result.success(Unit)
             else Result.failure(Exception("Registration failed: ${response.code()}"))
         } catch (e: Exception) {
@@ -59,9 +43,9 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun deleteAccount(token: String): Result<Unit> {
+    suspend fun deleteAccount(): Result<Unit> {
         return try {
-            val response = apiService.deleteAccount("Bearer $token")
+            val response = apiService.deleteAccount()
             if (response.isSuccessful) Result.success(Unit)
             else Result.failure(Exception("Delete failed: ${response.code()}"))
         } catch (e: Exception) {
