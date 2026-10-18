@@ -51,4 +51,4 @@ This project was developed as part of the Work-Integrated Learning (WIL) Portfol
    git clone https://github.com/GosegoMatlokwe/GoodStuff-CMS-Mobile.git
 
 ##Demonstration Video: 
-[Link here]
+https://youtube.com/shorts/A6XeM436qt8?si=x8PRmoKVuL9id23Z
