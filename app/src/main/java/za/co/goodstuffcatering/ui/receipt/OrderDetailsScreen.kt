@@ -37,18 +37,16 @@ fun OrderDetailsScreen(
         viewModel.loadBooking(bookingId)
     }
 
-    // Handle opening the PDF when generated
     LaunchedEffect(receiptFile) {
         receiptFile?.let { file ->
             try {
                 val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-                val intent = Intent(Intent.ACTION_SEND).apply {
-                    type = "application/pdf"
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    putExtra(Intent.EXTRA_SUBJECT, "Good Stuff Catering Receipt - INV-$bookingId")
+                // FIXED: Using ACTION_VIEW to open the PDF, not ACTION_SEND
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, "application/pdf")
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
-                context.startActivity(Intent.createChooser(intent, "Share Receipt via"))
+                context.startActivity(intent)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -85,14 +83,15 @@ fun OrderDetailsScreen(
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // Share PDF Button
+            // View PDF Button
             Button(
                 onClick = { viewModel.generateReceiptForOrder(context) },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(28.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = ForestGreen)
             ) {
-                Text("🧾 Share PDF Receipt", color = Color.White, fontWeight = FontWeight.Bold)
+                // FIXED: Changed back to "View PDF Receipt"
+                Text("🧾 View PDF Receipt", color = Color.White, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
