@@ -1,14 +1,17 @@
 package za.co.goodstuffcatering.ui.auth
 
-import androidx.credentials.CredentialManager
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
@@ -18,43 +21,59 @@ import androidx.navigation.NavController
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.launch
+import za.co.goodstuffcatering.R
 import za.co.goodstuffcatering.ui.navigation.Screen
+import za.co.goodstuffcatering.ui.theme.ForestGreen
 
 @Composable
 fun LoginScreen(
     navController: NavController,
-    viewModel: AuthViewModel = hiltViewModel() // Injects the ViewModel
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
-    // Observe the auth state from the ViewModel
     val authState by viewModel.authState.collectAsState()
-
-    // Context and Coroutine scope needed for the Google Credential Manager
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val credentialManager = CredentialManager.create(context)
 
-    // Your Web Client ID from Firebase (Used to identify your app to Google)
+    // Your Web Client ID from Firebase
     val webClientId = "918135390608-5ulabsaqhetsdlbmes1h60i4ua7it630.apps.googleusercontent.com"
 
-    // LaunchedEffect listens for changes in 'authState'.
-    // If login succeeds, it navigates to the Registration screen.
+    // If login succeeds, navigate to the Registration screen
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
             navController.navigate(Screen.Registration.route) {
-                // Remove Login from the backstack so the user can't press 'Back' to return here
                 popUpTo(Screen.Login.route) { inclusive = true }
             }
         }
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Good Stuff Catering", style = MaterialTheme.typography.headlineLarge)
+
+        // --- NEW LOGO IMAGE ---
+        Image(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = "Good Stuff Catering Logo",
+            modifier = Modifier.size(240.dp) // Adjust this size if needed
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Good Stuff Catering",
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold,
+            color = ForestGreen
+        )
+
         Spacer(modifier = Modifier.height(48.dp))
 
+        // --- GOOGLE SIGN IN BUTTON ---
         Button(
             onClick = {
                 scope.launch {
@@ -70,19 +89,19 @@ fun LoginScreen(
                             .addCredentialOption(googleIdOption)
                             .build()
 
-                        // 2. Launch the Google account picker popup
+                        // 2. Launch the Google account picker
                         val result: GetCredentialResponse = credentialManager.getCredential(
                             context = context,
                             request = request,
                         )
 
-                        // 3. Extract the ID Token from the result
+                        // 3. Extract the ID Token
                         val credential = result.credential
                         if (credential is CustomCredential &&
                             credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
                         ) {
                             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                            // 4. Send the ID Token to your ViewModel to handle Firebase Auth
+                            // 4. Send the ID Token to your ViewModel for Firebase Auth
                             viewModel.signInWithGoogle(googleIdTokenCredential.idToken)
                         } else {
                             Log.e("LoginScreen", "Unexpected credential type")
@@ -95,18 +114,28 @@ fun LoginScreen(
                     }
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
-            // Disable the button while loading to prevent double-clicks
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = ForestGreen),
             enabled = authState !is AuthState.Loading
         ) {
             if (authState is AuthState.Loading) {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = androidx.compose.ui.graphics.Color.White
+                )
             } else {
-                Text("Sign in with Google")
+                Text(
+                    text = "Sign in with Google",
+                    fontWeight = FontWeight.Bold,
+                    color = androidx.compose.ui.graphics.Color.White
+                )
             }
         }
 
-        // Display error message if login fails
+        // --- ERROR MESSAGE DISPLAY ---
         if (authState is AuthState.Error) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
