@@ -43,7 +43,7 @@ object NetworkModule {
             // 🚨 CRITICAL: This is the IP address of your laptop running Django.
             // If you are using a physical phone, this must be your laptop's IPv4 address.
             // If you are using an Emulator, use "http://10.0.2.2:8000/api/"
-            .baseUrl("https://gosegomatlokwe.pythonanywhere.com/api/")
+            .baseUrl("https://gosegomatlokwe.pythonanywhere.com/")
             .client(okHttpClient)
             // GsonConverterFactory translates JSON from Django into Kotlin objects (and vice versa)
             .addConverterFactory(GsonConverterFactory.create())
