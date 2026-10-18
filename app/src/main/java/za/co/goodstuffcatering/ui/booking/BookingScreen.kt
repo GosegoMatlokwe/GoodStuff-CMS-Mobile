@@ -24,6 +24,7 @@ import java.util.Locale
 @Composable
 fun BookingScreen(
     navController: NavController,
+    initialPricePerHead: Double, // <--- NEW ARGUMENT
     viewModel: BookingViewModel = hiltViewModel()
 ) {
     val guestCount by viewModel.guestCount.collectAsState()
