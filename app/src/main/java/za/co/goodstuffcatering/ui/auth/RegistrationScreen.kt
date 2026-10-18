@@ -111,7 +111,7 @@ fun RegistrationScreen(
                 )
                 Text(
                     text = "I consent to the processing of my personal data in accordance with POPIA.",
-                    color = DarkText,
+                    //color = DarkText,
                     fontSize = 14.sp,
                     modifier = Modifier.padding(top = 12.dp, start = 8.dp)
                 )

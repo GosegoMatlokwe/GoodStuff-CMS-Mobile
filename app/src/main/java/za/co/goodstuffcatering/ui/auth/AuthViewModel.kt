@@ -21,9 +21,6 @@ class AuthViewModel @Inject constructor(
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState
 
-    private val _registerState = MutableStateFlow<RegisterState>(RegisterState.Idle)
-    val registerState: StateFlow<RegisterState> = _registerState
-
     fun signInWithGoogle(idToken: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
@@ -52,34 +49,6 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
-
-    fun completeRegistration(phoneNumber: String, consentGiven: Boolean) {
-        viewModelScope.launch {
-            _registerState.value = RegisterState.Loading
-
-            val user = FirebaseAuth.getInstance().currentUser
-            val token = user?.getIdToken(false)?.await()?.token
-            val email = user?.email ?: ""
-            val name = user?.displayName ?: "New User"
-
-            if (token != null) {
-                val result = authRepository.registerUser(
-                    token = token,
-                    email = email,
-                    name = name,
-                    phone = phoneNumber,
-                    popiaConsent = consentGiven
-                )
-                if (result.isSuccess) {
-                    _registerState.value = RegisterState.Success
-                } else {
-                    _registerState.value = RegisterState.Error(result.exceptionOrNull()?.message ?: "Registration failed")
-                }
-            } else {
-                _registerState.value = RegisterState.Error("Authentication error")
-            }
-        }
-    }
 }
 
 sealed class AuthState {
@@ -87,11 +56,4 @@ sealed class AuthState {
     object Loading : AuthState()
     object Success : AuthState()
     data class Error(val message: String) : AuthState()
-}
-
-sealed class RegisterState {
-    object Idle : RegisterState()
-    object Loading : RegisterState()
-    object Success : RegisterState()
-    data class Error(val message: String) : RegisterState()
 }

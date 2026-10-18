@@ -36,7 +36,7 @@ fun LoginScreen(
 
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
-            navController.navigate(Screen.Dashboard.route) {
+            navController.navigate(Screen.Registration.route) {
                 popUpTo(Screen.Login.route) { inclusive = true }
             }
         }
