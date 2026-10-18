@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
+import za.co.goodstuffcatering.data.local.BookingEntity
 import za.co.goodstuffcatering.ui.common.UiState
 import za.co.goodstuffcatering.ui.navigation.Screen
 import za.co.goodstuffcatering.ui.theme.CreamBackground
@@ -37,6 +39,27 @@ fun DashboardScreen(
     val currentUser = FirebaseAuth.getInstance().currentUser
     val firstName = currentUser?.displayName?.split(" ")?.firstOrNull() ?: "there"
 
+    // State for delete confirmation dialog
+    var bookingToDelete by remember { mutableStateOf<BookingEntity?>(null) }
+
+    // Delete Confirmation Dialog
+    if (bookingToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { bookingToDelete = null },
+            title = { Text("Cancel Booking?") },
+            text = { Text("Are you sure you want to delete your ${bookingToDelete?.eventType} booking? This cannot be undone.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.deleteBooking(bookingToDelete!!.id) // Call viewmodel to delete
+                    bookingToDelete = null
+                }) { Text("Yes, Delete", color = Color.Red) }
+            },
+            dismissButton = {
+                TextButton(onClick = { bookingToDelete = null }) { Text("Keep Booking") }
+            }
+        )
+    }
+
     Scaffold(
         containerColor = CreamBackground,
         topBar = {
@@ -52,8 +75,8 @@ fun DashboardScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                // If they click FAB, default price is 150.0
-                onClick = { navController.navigate(Screen.BookingForm.createRoute(150.0)) },
+                // FIXED: Pass 0.0 so BookingScreen knows no menu is selected
+                onClick = { navController.navigate(Screen.BookingForm.createRoute(0.0)) },
                 containerColor = ForestGreen,
                 shape = RoundedCornerShape(16.dp)
             ) {
@@ -70,19 +93,12 @@ fun DashboardScreen(
 
             // Browse Menu Card
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .clickable { navController.navigate(Screen.Menu.route) },
+                modifier = Modifier.fillMaxWidth().height(120.dp).clickable { navController.navigate(Screen.Menu.route) },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = ForestGreen),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxSize().padding(24.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(modifier = Modifier.fillMaxSize().padding(24.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text("Hungry?", color = GoldAccent, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                         Text("Browse our premium catering menu.", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -93,13 +109,7 @@ fun DashboardScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Text(
-                text = "Upcoming Bookings",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = ForestGreen,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
+            Text("Upcoming Bookings", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = ForestGreen, modifier = Modifier.padding(bottom = 12.dp))
 
             Box(modifier = Modifier.fillMaxSize()) {
                 when (val state = uiState) {
@@ -107,9 +117,7 @@ fun DashboardScreen(
                     is UiState.Error -> {
                         Column(modifier = Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(text = state.message, color = MaterialTheme.colorScheme.error)
-                            Button(onClick = { state.retryAction?.invoke() }, colors = ButtonDefaults.buttonColors(containerColor = ForestGreen)) {
-                                Text("Retry")
-                            }
+                            Button(onClick = { state.retryAction?.invoke() }, colors = ButtonDefaults.buttonColors(containerColor = ForestGreen)) { Text("Retry") }
                         }
                     }
                     is UiState.Success -> {
@@ -125,36 +133,18 @@ fun DashboardScreen(
                                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                                     ) {
                                         Column(modifier = Modifier.padding(16.dp)) {
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.SpaceBetween,
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
+                                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                                    Box(
-                                                        modifier = Modifier.size(40.dp).background(CreamBackground, RoundedCornerShape(8.dp)),
-                                                        contentAlignment = Alignment.Center
-                                                    ) { Text("📅", fontSize = 20.sp) }
-
+                                                    Box(modifier = Modifier.size(40.dp).background(CreamBackground, RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) { Text("📅", fontSize = 20.sp) }
                                                     Spacer(modifier = Modifier.width(12.dp))
-
                                                     Column {
                                                         Text(booking.eventType, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ForestGreen)
                                                         Text(booking.eventDate, color = Color.Gray, fontSize = 14.sp)
                                                     }
                                                 }
-
-                                                Surface(
-                                                    color = if (booking.status == "Confirmed") Color(0xFFE8F0EC) else Color(0xFFFFF3CD),
-                                                    shape = RoundedCornerShape(8.dp)
-                                                ) {
-                                                    Text(
-                                                        text = booking.status,
-                                                        color = if (booking.status == "Confirmed") ForestGreen else Color(0xFF856404),
-                                                        fontWeight = FontWeight.Bold,
-                                                        fontSize = 12.sp,
-                                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                                    )
+                                                // FIXED: Added Delete Icon
+                                                IconButton(onClick = { bookingToDelete = booking }) {
+                                                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
                                                 }
                                             }
 
@@ -162,11 +152,7 @@ fun DashboardScreen(
                                             Divider(color = Color.LightGray.copy(alpha = 0.5f))
                                             Spacer(modifier = Modifier.height(8.dp))
 
-                                            // YOUR REQUESTED SNIPPET
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.End
-                                            ) {
+                                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                                                 OutlinedButton(
                                                     onClick = { navController.navigate(Screen.OrderDetails.createRoute(booking.id)) },
                                                     shape = RoundedCornerShape(50),
