@@ -24,6 +24,7 @@ class DashboardViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             bookingRepository.cachedBookings.collectLatest { localBookings ->
+                // If there is local data, show it immediately
                 if (localBookings.isNotEmpty()) {
                     _uiState.value = UiState.Success(localBookings)
                 }
@@ -38,7 +39,6 @@ class DashboardViewModel @Inject constructor(
                 _uiState.value = UiState.Loading
             }
 
-            // FIXED: Removed the token parameter here!
             val result = bookingRepository.syncBookingsFromNetwork()
 
             if (result.isFailure) {

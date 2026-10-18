@@ -2,8 +2,10 @@ package za.co.goodstuffcatering.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll // <--- NEW IMPORT
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,14 +30,6 @@ fun SettingsScreen(
     val deleteState by viewModel.deleteState.collectAsState()
     val currentUser = FirebaseAuth.getInstance().currentUser
 
-    // Profile state
-    val fullName = currentUser?.displayName ?: "Guest User"
-    val nameParts = fullName.split(" ")
-    var name by remember { mutableStateOf(nameParts.getOrNull(0) ?: "") }
-    var surname by remember { mutableStateOf(nameParts.getOrNull(1) ?: "") }
-    var email by remember { mutableStateOf(currentUser?.email ?: "") }
-    var phone by remember { mutableStateOf("") }
-
     var darkMode by remember { mutableStateOf(false) }
     var pushNotifications by remember { mutableStateOf(true) }
 
@@ -55,10 +49,13 @@ fun SettingsScreen(
         }
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState()) // <--- FIXED: Added vertical scroll
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             // --- PROFILE CARD ---
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -71,6 +68,7 @@ fun SettingsScreen(
                             modifier = Modifier.size(50.dp).background(ForestGreen, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
+                            val fullName = currentUser?.displayName ?: "Guest User"
                             Text(fullName.take(2).uppercase(), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                         }
                         Spacer(modifier = Modifier.width(16.dp))
@@ -80,37 +78,16 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     OutlinedTextField(
-                        value = name, onValueChange = { name = it },
-                        label = { Text("Name") }, modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = ForestGreen)
+                        value = currentUser?.displayName ?: "", onValueChange = {},
+                        label = { Text("Full Name") }, modifier = Modifier.fillMaxWidth(),
+                        readOnly = true, colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = ForestGreen)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
-                        value = surname, onValueChange = { surname = it },
-                        label = { Text("Surname") }, modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = ForestGreen)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = email, onValueChange = { email = it },
+                        value = currentUser?.email ?: "", onValueChange = {},
                         label = { Text("Email") }, modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = ForestGreen)
+                        readOnly = true, colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = ForestGreen)
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = phone, onValueChange = { phone = it },
-                        label = { Text("Phone Number") }, modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = ForestGreen)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = { /* TODO: Save to Django */ },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = ForestGreen)
-                    ) {
-                        Text("Save Profile", color = Color.White)
-                    }
                 }
             }
 
@@ -165,6 +142,7 @@ fun SettingsScreen(
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(32.dp)) // Bottom padding
         }
     }
 }
