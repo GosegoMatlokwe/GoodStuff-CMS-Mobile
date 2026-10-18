@@ -51,4 +51,19 @@ class DashboardViewModel @Inject constructor(
             }
         }
     }
+
+
+
+    // NEW: Function called by the DashboardScreen when the user confirms deletion
+    fun deleteBooking(bookingId: Int) {
+        viewModelScope.launch {
+            val result = bookingRepository.deleteBooking(bookingId)
+            if (result.isFailure) {
+                // In a production app, you would show a Toast or Snackbar here
+                // e.g., "Failed to delete. Check your internet connection."
+            }
+        }
+    }
+
+
 }

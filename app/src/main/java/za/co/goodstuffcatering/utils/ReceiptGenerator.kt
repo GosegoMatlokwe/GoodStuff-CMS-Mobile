@@ -32,7 +32,7 @@ object ReceiptGenerator {
         canvas.drawRect(0f, 0f, 595f, 842f, paint)
 
         // Header
-        paint.color = Color.parseColor("#1B4332") // Forest Green
+        paint.color = Color.parseColor("#1B4332")
         canvas.drawRect(0f, 0f, 595f, 100f, paint)
         paint.color = Color.WHITE
         paint.textSize = 28f
@@ -42,69 +42,69 @@ object ReceiptGenerator {
         paint.isFakeBoldText = false
         canvas.drawText("Premium Catering Services", 40f, 85f, paint)
 
-        // Receipt Details
+        // Details
         paint.color = Color.BLACK
         paint.textSize = 16f
         var y = 150f
         canvas.drawText("INVOICE / RECEIPT", 40f, y, paint)
-        y += 30f
+        y += 35f // INCREASED SPACING
         paint.textSize = 14f
         canvas.drawText("Invoice No: $invoiceNumber", 40f, y, paint)
-        y += 20f
+        y += 25f // INCREASED SPACING
         val date = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()).format(Date())
         canvas.drawText("Date Issued: $date", 40f, y, paint)
-        y += 40f
+        y += 45f // INCREASED SPACING
 
         // Customer Details
         canvas.drawText("Billed To:", 40f, y, paint)
-        y += 20f
+        y += 25f // INCREASED SPACING
         canvas.drawText(customerName, 40f, y, paint)
-        y += 40f
+        y += 45f // INCREASED SPACING
 
         // Table Header
         paint.color = Color.parseColor("#E0E0E0")
-        canvas.drawRect(40f, y, 555f, y + 30f, paint)
+        canvas.drawRect(40f, y, 555f, y + 35f, paint)
         paint.color = Color.BLACK
-        canvas.drawText("Description", 50f, y + 20f, paint)
-        canvas.drawText("Amount (ZAR)", 450f, y + 20f, paint)
-        y += 40f
+        canvas.drawText("Description", 50f, y + 22f, paint)
+        canvas.drawText("Amount (ZAR)", 450f, y + 22f, paint)
+        y += 45f // INCREASED SPACING
 
         // Table Data
         canvas.drawText("$eventType - $eventDate", 50f, y, paint)
         canvas.drawText(String.format("R %.2f", totalAmount), 450f, y, paint)
-        y += 30f
+        y += 35f // INCREASED SPACING
 
         // VAT
         val vatAmount = totalAmount - (totalAmount / 1.15)
         val subTotal = totalAmount - vatAmount
         canvas.drawLine(40f, y, 555f, y, paint)
-        y += 30f
+        y += 35f // INCREASED SPACING
         canvas.drawText("Subtotal:", 400f, y, paint)
         canvas.drawText(String.format("R %.2f", subTotal), 450f, y, paint)
-        y += 20f
+        y += 25f // INCREASED SPACING
         canvas.drawText("VAT (15%):", 400f, y, paint)
         canvas.drawText(String.format("R %.2f", vatAmount), 450f, y, paint)
-        y += 20f
+        y += 25f // INCREASED SPACING
         canvas.drawText("Total:", 400f, y, paint)
         paint.isFakeBoldText = true
         canvas.drawText(String.format("R %.2f", totalAmount), 450f, y, paint)
 
-        // --- NEW: BANKING DETAILS ---
-        y += 50f
+        // BANKING DETAILS
+        y += 60f // EXTRA SPACE HERE
         paint.isFakeBoldText = true
         paint.textSize = 14f
         canvas.drawText("Banking Details for EFT:", 40f, y, paint)
-        y += 20f
+        y += 25f // INCREASED SPACING
         paint.isFakeBoldText = false
         paint.textSize = 12f
         canvas.drawText("Bank: First National Bank (FNB)", 40f, y, paint)
-        y += 15f
+        y += 20f // INCREASED SPACING
         canvas.drawText("Account Name: Good Stuff Catering", 40f, y, paint)
-        y += 15f
+        y += 20f // INCREASED SPACING
         canvas.drawText("Account Number: 627 409 1123", 40f, y, paint)
-        y += 15f
+        y += 20f // INCREASED SPACING
         canvas.drawText("Branch Code: 250655", 40f, y, paint)
-        y += 15f
+        y += 20f // INCREASED SPACING
         canvas.drawText("Reference: $invoiceNumber", 40f, y, paint)
 
         // Footer
@@ -112,7 +112,7 @@ object ReceiptGenerator {
         paint.textSize = 12f
         paint.color = Color.GRAY
         canvas.drawText("Thank you for choosing Good Stuff Catering!", 40f, y, paint)
-        canvas.drawText("POPIA Compliant Document | Generated on Mobile App", 40f, y + 20f, paint)
+        canvas.drawText("POPIA Compliant Document | Generated on Mobile App", 40f, y + 25f, paint)
 
         pdfDocument.finishPage(page)
 

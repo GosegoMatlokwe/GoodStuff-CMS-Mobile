@@ -27,4 +27,8 @@ interface ApiService {
 
     @POST("auth/consent/")
     suspend fun recordConsent(@Body request: ConsentRequest): Response<Unit>
+
+    // NEW: Endpoint to delete a specific booking
+    @DELETE("bookings/{id}/delete/")
+    suspend fun deleteBooking(@Path("id") bookingId: Int): Response<Unit>
 }

@@ -58,4 +58,29 @@ class BookingRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
+    suspend fun deleteLocalBooking(bookingId: Int) {
+        bookingDao.deleteBookingById(bookingId)
+    }
+
+    // NEW: Function to handle deleting a booking
+    suspend fun deleteBooking(bookingId: Int): Result<Unit> {
+        return try {
+            // 1. Delete from the Django backend
+            val response = apiService.deleteBooking(bookingId)
+
+            if (response.isSuccessful) {
+                // 2. If Django says "success", delete it from the local Room database
+                // This will automatically update the Dashboard UI!
+                bookingDao.deleteBookingById(bookingId)
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Failed to delete booking from server"))
+            }
+        } catch (e: Exception) {
+            // If the network fails, we don't delete it locally (Offline-First safety)
+            Result.failure(e)
+        }
+    }
+
 }

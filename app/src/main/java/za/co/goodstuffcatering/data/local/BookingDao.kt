@@ -62,4 +62,9 @@ interface BookingDao {
     @Query("SELECT * FROM bookings WHERE id = :id")
     suspend fun getBookingById(id: Int): BookingEntity?
 
+    @Query("DELETE FROM bookings WHERE id = :bookingId")
+    suspend fun deleteBookingById(bookingId: Int)
+
+
+
 }
