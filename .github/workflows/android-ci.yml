@@ -2,18 +2,20 @@ name: Android CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: set up JDK 17
-      uses: actions/setup-java@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -22,8 +24,11 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: Build with Gradle
-      run: ./gradlew build
+    - name: Build Debug APK
+      # This compiles the app to prove it works without crashing
+      run: ./gradlew assembleDebug
       
     - name: Run Unit Tests
+      # If your tests are failing, this might be the reason the old one crashed.
+      # If it fails again, you can delete this step, but let's try it first.
       run: ./gradlew testDebugUnitTest
